@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Workout Plan - Fitness Planner</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; }
+        .navbar { background-color: #333; overflow: hidden; padding: 10px 20px; }
+        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .navbar .right-links { float: right; }
+        .container { max-width: 800px; margin: 30px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 10px; }
+        h3 { color: #555; margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        .plan-details p, .profile-details p { margin: 8px 0; font-size: 1.05em; }
+        .plan-details strong, .profile-details strong { color: #444; }
+        .no-plan { text-align: center; font-size: 1.2em; color: #777; margin-top: 30px; }
+        .day-schedule { margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;}
+        .day-schedule h4 { margin-top: 0; color: #5cb85c; }
+        .exercise-list { list-style: none; padding-left: 0; }
+        .exercise-list li { background-color: #fff; margin-bottom: 8px; padding: 10px; border-radius: 4px; border: 1px solid #eee; }
+        .exercise-list li strong { display: inline-block; min-width: 120px;}
+        .alert { padding: 12px; margin-bottom: 18px; border-radius: 4px; }
+        .alert-info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+         .btn-link { display:inline-block; padding: 8px 15px; margin-top:10px; background-color:#007bff; color:white; text-decoration:none; border-radius:4px; }
+        .btn-link:hover{ background-color:#0056b3; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a th:href="@{/}">Fitness Planner</a>
+        <div class="right-links" sec:authorize="isAuthenticated()">
+            <a th:href="@{/dashboard}">Dashboard</a>
+            <a th:href="@{/workout/profile}">Workout Profile</a>
+            <a th:href="@{/diet/profile}">Diet Profile</a>
+            <a th:href="@{/workout/my-plan}" class="active">My Workout Plan</a>
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>My Current Workout Plan</h2>
+
+        <div th:if="${currentWorkoutPlan == null and workoutProfile == null}" class="no-plan">
+            <p>You haven't set up your workout profile yet.</p>
+            <a th:href="@{/workout/profile}" class="btn-link">Create Workout Profile</a>
+        </div>
+
+        <div th:if="${currentWorkoutPlan == null and workoutProfile != null}" class="no-plan">
+            <p>No workout plan is currently assigned to you based on your profile.</p>
+            <p>Please ensure your <a th:href="@{/workout/profile}">workout profile</a> is complete and up-to-date. We are always updating our plans!</p>
+        </div>
+
+        <div th:if="${currentWorkoutPlan != null}">
+            <div class="plan-details">
+                <h3><span th:text="${currentWorkoutPlan.planName}">Plan Name</span></h3>
+                <p><strong>Goal:</strong> <span th:text="${#strings.capitalizeWords(currentWorkoutPlan.targetGoal.replace('_', ' '))}">Target Goal</span></p>
+                <p><strong>Suitable For:</strong> <span th:each="level, iterStat : ${currentWorkoutPlan.targetActivityLevel}" th:text="${#strings.capitalizeWords(level.replace('_', ' '))} + (${!iterStat.last} ? ', ' : '')">Activity Level</span></p>
+                <p><strong>Duration:</strong> <span th:text="${currentWorkoutPlan.durationWeeks}">0</span> weeks</p>
+                <p><strong>Description:</strong> <span th:text="${currentWorkoutPlan.description}">Plan Description</span></p>
+            </div>
+
+            <h3>Weekly Schedule</h3>
+            <div th:if="${currentWorkoutPlan.weeklySchedule == null or currentWorkoutPlan.weeklySchedule.isEmpty()}" class="alert alert-info">
+                This plan does not have a detailed weekly schedule available yet.
+            </div>
+
+            <div th:each="dailyWorkout : ${currentWorkoutPlan.weeklySchedule}" class="day-schedule">
+                <h4><span th:text="${dailyWorkout.day}">Day</span> - <span th:text="${dailyWorkout.workoutType}">Workout Type</span></h4>
+                <p th:if="${dailyWorkout.description}" th:text="${dailyWorkout.description}">Daily Description</p>
+
+                <ul th:if="${dailyWorkout.exercises != null and !dailyWorkout.exercises.isEmpty()}" class="exercise-list">
+                    <li th:each="exercise : ${dailyWorkout.exercises}">
+                        <strong><span th:text="${exercise.name}">Exercise Name</span>:</strong>
+                        <span th:if="${exercise.sets}" th:text="'Sets: ' + ${exercise.sets}">Sets</span>
+                        <span th:if="${exercise.reps}" th:text="'Reps: ' + ${exercise.reps}">Reps</span>
+                        <span th:if="${exercise.durationSeconds}" th:text="'Duration: ' + ${exercise.durationSeconds} + 's'">Duration Seconds</span>
+                        <span th:if="${exercise.durationMinutes}" th:text="'Duration: ' + ${exercise.durationMinutes} + ' min'">Duration Minutes</span>
+                        <span th:if="${exercise.restSeconds}" th:text="'Rest: ' + ${exercise.restSeconds} + 's'">Rest</span>
+                    </li>
+                </ul>
+                <p th:if="${dailyWorkout.exercises == null or dailyWorkout.exercises.isEmpty() and dailyWorkout.description == null}">
+                    Details for this day will be provided.
+                </p>
+            </div>
+             <div style="text-align: center; margin-top: 20px; margin-bottom: 20px; display: flex; justify-content: center; gap: 15px;">
+                <a th:href="@{/workout/profile}" class="btn-link">Update My Profile</a>
+                <a th:href="@{/manage-plans/workout/change}" class="btn-link" style="background-color:#ffc107; color:black;">Change Plan</a>
+                <form th:action="@{/manage-plans/workout/discontinue}" method="post" style="display: inline;">
+                    <button type="submit" class="btn-link" style="background-color:#dc3545;"
+                            onclick="return confirm('Are you sure you want to discontinue this workout plan?');">
+                        Discontinue Plan
+                    </button>
+                </form>
+            </div>
+        </div>
+         <div style="text-align: center; margin-top: 30px;">
+            <a th:href="@{/dashboard}">Back to Dashboard</a>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Fitness Planner</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; }
+        .navbar { background-color: #333; overflow: hidden; padding: 10px 20px; }
+        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .navbar .right-links { float: right; }
+        .hero { background-color: #5cb85c; color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { margin: 0; font-size: 2.5em; }
+        .hero p { font-size: 1.2em; }
+        .content { padding: 20px; text-align: center; }
+        .btn { background-color: #5cb85c; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 1.1em; margin: 5px; display: inline-block;}
+        .btn:hover { background-color: #4cae4c; }
+        .btn-secondary { background-color: #f0ad4e; }
+        .btn-secondary:hover { background-color: #ec971f; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a th:href="@{/}">Fitness Planner</a>
+        <div class="right-links">
+            <!-- sec:authorize="isAuthenticated()" means this content is only shown if the user is logged in -->
+            <span sec:authorize="isAuthenticated()">
+                <a th:href="@{/dashboard}">Dashboard</a>
+                <a th:href="@{/logout}">Logout</a>
+                 Logged in as: <strong sec:authentication="name" style="color: white; padding-right: 10px;">User</strong>
+            </span>
+            <!-- sec:authorize="isAnonymous()" means this content is only shown if the user is NOT logged in -->
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}">Login</a>
+                <a th:href="@{/register}">Register</a>
+            </span>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1>Welcome to Fitness Planner</h1>
+        <p>Your personal guide to a healthier lifestyle.</p>
+    </div>
+
+    <div class="content">
+        <h2>Get Started Today!</h2>
+        <p>Join us to get personalized workout and diet plans, track your progress, and achieve your fitness goals.</p>
+
+        <div sec:authorize="isAnonymous()">
+            <a th:href="@{/register}" class="btn">Sign Up Now</a>
+            <a th:href="@{/login}" class="btn btn-secondary">Login</a>
+        </div>
+
+        <div sec:authorize="isAuthenticated()">
+            <p>Welcome back, <strong sec:authentication="principal.username">User</strong>!</p>
+            <a th:href="@{/dashboard}" class="btn">Go to Your Dashboard</a>
+        </div>
+    </div>
+
+</body>
+</html>

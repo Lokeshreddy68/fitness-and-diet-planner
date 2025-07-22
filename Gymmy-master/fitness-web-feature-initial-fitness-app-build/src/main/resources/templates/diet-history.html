@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet History - Fitness Planner</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; color: #333; }
+        .navbar { background-color: #333; overflow: hidden; padding: 10px 20px; }
+        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .navbar .right-links { float: right; }
+        .navbar .active { background-color: #5cb85c; }
+
+        .container { max-width: 1100px; margin: 20px auto; background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        h2 { text-align: center; color: #333; margin-bottom: 10px; }
+        .date-navigation { text-align: center; margin-bottom: 20px; }
+        .date-navigation a, .date-navigation span { margin: 0 10px; padding: 8px 12px; text-decoration: none; background-color: #e9ecef; color: #495057; border-radius: 4px; }
+        .date-navigation a:hover { background-color: #007bff; color: white; }
+        .date-navigation span { font-weight: bold; background-color: #5cb85c; color:white; }
+
+
+        .summary-bar { display: flex; justify-content: space-around; background-color: #f1f1f1; padding: 15px; border-radius: 5px; margin-bottom: 20px; flex-wrap: wrap; }
+        .summary-item { text-align: center; margin: 5px 10px;}
+        .summary-item strong { display: block; font-size: 1.2em; color: #5cb85c; }
+        .summary-item span { font-size: 0.9em; color: #555; }
+
+        .log-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .log-table th, .log-table td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.85em; }
+        .log-table th { background-color: #f2f2f2; color: #333; }
+        .log-table tr:nth-child(even) { background-color: #fbfbfb; }
+        .log-table tr:hover { background-color: #f1f1f1; }
+        .log-table .desc-col { min-width: 200px; max-width:300px; word-wrap: break-word; }
+        .log-table .notes-col { max-width: 150px; word-wrap: break-word; }
+        .no-history { text-align: center; color: #777; font-size: 1.1em; padding: 20px; }
+        .text-center { text-align: center; margin-top: 20px;}
+        .text-center a { color: #007bff; text-decoration: none; margin: 0 10px; }
+        .text-center a:hover { text-decoration: underline; }
+        .btn-link { display:inline-block; padding: 8px 15px; background-color:#5cb85c; color:white; text-decoration:none; border-radius:4px; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a th:href="@{/}">Fitness Planner</a>
+        <div class="right-links" sec:authorize="isAuthenticated()">
+            <a th:href="@{/dashboard}">Dashboard</a>
+            <a th:href="@{/workout/tracker}">Track Workout</a>
+            <a th:href="@{/diet/tracker}">Track Diet</a>
+            <a th:href="@{/diet/history}" class="active">Diet History</a>
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Diet Log History</h2>
+
+        <div class="date-navigation">
+            <a th:href="@{/diet/history(date=${previousDate.toString()})}">&laquo; Previous Day</a>
+            <span th:text="${#temporals.format(historyDate, 'MMMM dd, yyyy')}">Current Date</span>
+            <a th:href="@{/diet/history(date=${nextDate.toString()})}">Next Day &raquo;</a>
+        </div>
+
+        <div class="summary-bar">
+            <div class="summary-item">
+                <strong th:text="${totalCalories != null ? totalCalories : 0}">0</strong>
+                <span>Total Calories (kcal)</span>
+            </div>
+            <div class="summary-item">
+                <strong th:text="${totalProtein != null ? #numbers.formatDecimal(totalProtein, 1, 1) : '0.0'}">0.0</strong>
+                <span>Protein (g)</span>
+            </div>
+            <div class="summary-item">
+                <strong th:text="${totalCarbs != null ? #numbers.formatDecimal(totalCarbs, 1, 1) : '0.0'}">0.0</strong>
+                <span>Carbohydrates (g)</span>
+            </div>
+            <div class="summary-item">
+                <strong th:text="${totalFat != null ? #numbers.formatDecimal(totalFat, 1, 1) : '0.0'}">0.0</strong>
+                <span>Fat (g)</span>
+            </div>
+        </div>
+
+
+        <div th:if="${mealHistory == null or mealHistory.isEmpty()}" class="no-history">
+            <p>You haven't logged any meals for <span th:text="${#temporals.format(historyDate, 'MMMM dd, yyyy')}">this date</span>.</p>
+            <a th:href="@{/diet/tracker}" class="btn-link">Log Your Meals!</a>
+        </div>
+
+        <table th:unless="${mealHistory == null or mealHistory.isEmpty()}" class="log-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Meal Type</th>
+                    <th class="desc-col">Food/Description</th>
+                    <th>Calories (kcal)</th>
+                    <th>Protein (g)</th>
+                    <th>Carbs (g)</th>
+                    <th>Fat (g)</th>
+                    <th>Serving</th>
+                    <th class="notes-col">Notes</th>
+                    <!-- <th>Actions</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="log : ${mealHistory}">
+                    <td th:text="${log.logTime != null ? #temporals.format(log.logTime, 'HH:mm') : '-'}">Time</td>
+                    <td th:text="${log.mealType}">Type</td>
+                    <td class="desc-col" th:text="${log.foodItemOrMealDescription}">Description</td>
+                    <td th:text="${log.calories != null ? log.calories : '-'}">Calories</td>
+                    <td th:text="${log.proteinGrams != null ? #numbers.formatDecimal(log.proteinGrams,1,1) : '-'}">Protein</td>
+                    <td th:text="${log.carbohydrateGrams != null ? #numbers.formatDecimal(log.carbohydrateGrams,1,1) : '-'}">Carbs</td>
+                    <td th:text="${log.fatGrams != null ? #numbers.formatDecimal(log.fatGrams,1,1) : '-'}">Fat</td>
+                    <td>
+                        <span th:if="${log.servingSize != null}" th:text="${#numbers.formatDecimal(log.servingSize,1,1)}"></span>
+                        <span th:if="${log.servingUnit != null}" th:text="' ' + ${log.servingUnit}"></span>
+                        <span th:if="${log.servingSize == null and log.servingUnit == null}">-</span>
+                    </td>
+                    <td class="notes-col" th:text="${log.notes != null and !log.notes.isEmpty() ? log.notes : '-'}">Notes</td>
+                    <!--<td>-->
+                        <!-- Add edit/delete buttons here later if needed -->
+                    <!--</td>-->
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="text-center">
+            <a th:href="@{/dashboard}">Back to Dashboard</a>
+            <a th:href="@{/diet/tracker}">Log New Meal</a>
+        </div>
+    </div>
+
+</body>
+</html>

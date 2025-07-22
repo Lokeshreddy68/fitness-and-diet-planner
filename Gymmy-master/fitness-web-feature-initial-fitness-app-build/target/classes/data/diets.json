@@ -1,0 +1,89 @@
+[
+  {
+    "planId": "BAL_WL_001",
+    "planName": "Balanced Weight Loss Diet",
+    "targetDietType": "balanced",
+    "targetGoal": "weight_loss",
+    "description": "A balanced diet focusing on whole foods, lean protein, and complex carbohydrates to support healthy weight loss.",
+    "estimatedDailyCalories": 1800,
+    "macronutrientRatio": "Protein: 30%, Carbs: 40%, Fats: 30%",
+    "supportsFasting": false,
+    "avoidAllergies": [],
+    "sampleMeals": [
+      {
+        "mealName": "Breakfast (approx. 400 kcal)",
+        "exampleFoods": ["Oatmeal with berries and nuts", "Scrambled eggs with whole-wheat toast"]
+      },
+      {
+        "mealName": "Lunch (approx. 500 kcal)",
+        "exampleFoods": ["Grilled chicken salad with mixed greens and vinaigrette", "Lentil soup with a side of quinoa"]
+      },
+      {
+        "mealName": "Dinner (approx. 600 kcal)",
+        "exampleFoods": ["Baked salmon with roasted vegetables and brown rice", "Lean beef stir-fry with plenty of veggies"]
+      },
+      {
+        "mealName": "Snack (approx. 300 kcal total for 1-2 snacks)",
+        "exampleFoods": ["Greek yogurt with fruit", "Apple slices with almond butter", "A handful of almonds"]
+      }
+    ]
+  },
+  {
+    "planId": "LC_MG_001",
+    "planName": "Low-Carb Muscle Gain Support",
+    "targetDietType": "low_carb",
+    "targetGoal": "muscle_building_support",
+    "description": "A higher protein, lower carbohydrate diet to support muscle growth while managing body fat.",
+    "estimatedDailyCalories": 2500,
+    "macronutrientRatio": "Protein: 40%, Carbs: 20%, Fats: 40%",
+    "supportsFasting": true,
+    "avoidAllergies": ["gluten"],
+    "sampleMeals": [
+      {
+        "mealName": "Meal 1 (Post-Workout or Breakfast)",
+        "exampleFoods": ["Whey protein shake with unsweetened almond milk", "Steak and eggs"]
+      },
+      {
+        "mealName": "Meal 2 (Lunch)",
+        "exampleFoods": ["Large salad with grilled turkey breast, avocado, and olive oil dressing", "Tuna salad (made with Greek yogurt) lettuce wraps"]
+      },
+      {
+        "mealName": "Meal 3 (Dinner)",
+        "exampleFoods": ["Pork chops with green beans and a side salad", "Chicken thighs with broccoli and cheese"]
+      },
+      {
+        "mealName": "Snack (Optional)",
+        "exampleFoods": ["Hard-boiled eggs", "Beef jerky (low sugar)", "Cottage cheese"]
+      }
+    ]
+  },
+  {
+    "planId": "VEG_GEN_001",
+    "planName": "Vegetarian General Wellness",
+    "targetDietType": "vegetarian",
+    "targetGoal": "maintenance",
+    "description": "A diverse vegetarian diet plan for overall health and well-being, ensuring adequate protein and nutrient intake.",
+    "estimatedDailyCalories": 2000,
+    "macronutrientRatio": "Protein: 20%, Carbs: 50%, Fats: 30%",
+    "supportsFasting": false,
+    "avoidAllergies": [],
+    "sampleMeals": [
+      {
+        "mealName": "Breakfast",
+        "exampleFoods": ["Tofu scramble with spinach and mushrooms", "Whole grain pancakes with fruit and maple syrup"]
+      },
+      {
+        "mealName": "Lunch",
+        "exampleFoods": ["Chickpea and vegetable curry with brown rice", "Black bean burgers on whole wheat buns with sweet potato fries"]
+      },
+      {
+        "mealName": "Dinner",
+        "exampleFoods": ["Lentil shepherd's pie with mashed cauliflower topping", "Vegetable lasagna with whole wheat pasta"]
+      },
+      {
+        "mealName": "Snacks",
+        "exampleFoods": ["Edamame (steamed)", "Hummus with carrot and cucumber sticks", "Mixed nuts and seeds"]
+      }
+    ]
+  }
+]

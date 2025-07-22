@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF Tokens for AJAX POST -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+    <title>Dashboard - Fitness Planner</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; color: #333; }
+        .navbar { background-color: #333; overflow: hidden; padding: 10px 20px; }
+        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .navbar .right-links { float: right; }
+        .navbar .active { background-color: #5cb85c; }
+
+        .container { padding: 20px; max-width: 1200px; margin: auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #333; }
+        .header p { color: #555; font-size: 1.1em; }
+
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background-color: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .card h3 { margin-top: 0; color: #5cb85c; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .card p { line-height: 1.6; }
+        .card ul { list-style: none; padding-left: 0; }
+        .card ul li { margin-bottom: 8px; background-color: #f8f8f8; padding: 8px; border-radius: 4px; }
+        .card .exercise-detail { font-size: 0.9em; color: #666; }
+        .card .no-data { color: #888; font-style: italic; }
+        .btn-link { display: inline-block; padding: 8px 15px; margin-top: 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9em;}
+        .btn-link:hover{ background-color: #0056b3; }
+        .btn-link-secondary { background-color: #6c757d; }
+        .btn-link-secondary:hover { background-color: #5a6268; }
+
+        .quick-actions { text-align: center; margin-bottom: 30px; }
+        .quick-actions .btn-action { background-color: #5cb85c; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 1em; margin: 0 10px; }
+        .quick-actions .btn-action:hover { background-color: #4cae4c; }
+
+        .alert { padding: 15px; margin-bottom: 20px; border-radius: 4px; border: 1px solid transparent; }
+        .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb;}
+        .alert-info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb;}
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a th:href="@{/}">Fitness Planner</a>
+        <div class="right-links" sec:authorize="isAuthenticated()">
+            <a th:href="@{/dashboard}" class="active">Dashboard</a>
+            <a th:href="@{/workout/profile}">Workout Profile</a>
+            <a th:href="@{/diet/profile}">Diet Profile</a>
+            <a th:href="@{/workout/tracker}">Track Workout</a>
+            <a th:href="@{/diet/tracker}">Track Diet</a>
+            <a th:href="@{/history/plans}">Plan History</a>
+            <a th:href="@{/analytics}">Analytics</a>
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to Your Dashboard, <span sec:authentication="principal.username" style="color: #5cb85c;">User</span>!</h1>
+            <p>Here's a quick overview of your fitness journey today.</p>
+        </div>
+
+        <!-- Flash Messages -->
+        <div th:if="${param.successMessage}" class="alert alert-success" th:text="${param.successMessage}"></div>
+        <div th:if="${param.planAssignedMessage}" class="alert alert-info" th:text="${param.planAssignedMessage}"></div>
+        <div th:if="${param.planNotAssignedMessage}" class="alert alert-info" th:text="${param.planNotAssignedMessage}"></div>
+
+
+        <div class="grid-container">
+            <!-- Today's Workout -->
+            <div class="card">
+                <h3>Today's Workout</h3>
+                <div th:if="${currentWorkoutPlan != null and todaysWorkout != null}">
+                    <p><strong>Plan:</strong> <span th:text="${currentWorkoutPlan.planName}">Workout Plan Name</span></p>
+                    <p><strong>Focus:</strong> <span th:text="${todaysWorkout.workoutType}">Workout Type</span></p>
+                    <p th:if="${todaysWorkout.description}" th:text="${todaysWorkout.description}">Description</p>
+                    <ul th:if="${todaysWorkout.exercises != null and !todaysWorkout.exercises.isEmpty()}">
+                        <li th:each="exercise : ${todaysWorkout.exercises}">
+                            <strong th:text="${exercise.name}">Exercise Name</strong>
+                            <span class="exercise-detail">
+                                <span th:if="${exercise.sets}" th:text="' - Sets: ' + ${exercise.sets}"></span>
+                                <span th:if="${exercise.reps}" th:text="' Reps: ' + ${exercise.reps}"></span>
+                                <span th:if="${exercise.durationSeconds}" th:text="' - Duration: ' + ${exercise.durationSeconds} + 's'"></span>
+                                <span th:if="${exercise.durationMinutes}" th:text="' - Duration: ' + ${exercise.durationMinutes} + ' min'"></span>
+                            </span>
+                        </li>
+                    </ul>
+                    <p th:if="${todaysWorkout.exercises == null or todaysWorkout.exercises.isEmpty()}" class="no-data">
+                        It's a <span th:text="${#strings.toLowerCase(todaysWorkout.workoutType)}"></span> day. Enjoy!
+                    </p>
+                     <a th:href="@{/workout/my-plan}" class="btn-link">View Full Plan</a>
+                     <a th:href="@{/workout/tracker}" class="btn-link btn-link-secondary">Track Today's Workout</a>
+                </div>
+                <div th:if="${currentWorkoutPlan == null}" class="no-data">
+                    <p>No workout plan assigned yet. Please complete your <a th:href="@{/workout/profile}">Workout Profile</a>.</p>
+                </div>
+                <div th:if="${currentWorkoutPlan != null and todaysWorkout == null}" class="no-data">
+                     <p>No specific workout scheduled for today in your current plan. It might be a rest day!</p>
+                     <a th:href="@{/workout/my-plan}" class="btn-link">View Full Plan</a>
+                </div>
+            </div>
+
+            <!-- Today's Diet -->
+            <div class="card">
+                <h3>Today's Diet Focus</h3>
+                <div th:if="${currentDietPlan != null}">
+                    <p><strong>Plan:</strong> <span th:text="${currentDietPlan.planName}">Diet Plan Name</span></p>
+                    <p><strong>Goal:</strong> <span th:text="${#strings.capitalizeWords(currentDietPlan.targetGoal.replace('_', ' '))}">Target Goal</span></p>
+                    <p><strong>Est. Calories:</strong> <span th:text="${currentDietPlan.estimatedDailyCalories}">Calories</span> kcal</p>
+                    <div th:if="${dietProfile != null and dietProfile.targetCalories != null and dietProfile.targetCalories != currentDietPlan.estimatedDailyCalories}">
+                         <p><strong>Your Target:</strong> <strong th:text="${dietProfile.targetCalories}"></strong> kcal</p>
+                    </div>
+                    <p th:if="${currentDietPlan.macronutrientRatio}"><strong>Macros:</strong> <span th:text="${currentDietPlan.macronutrientRatio}">Macros</span></p>
+
+                    <h4 style="margin-top: 15px; margin-bottom: 5px; font-size:1em;">Sample Meal Ideas:</h4>
+                    <ul th:if="${sampleMeals != null and !sampleMeals.isEmpty()}">
+                        <li th:each="meal, iterStat : ${sampleMeals}" th:if="${iterStat.index < 3}"> <!-- Show first 3 sample meals -->
+                            <strong th:text="${meal.mealName}">Meal Name</strong>:
+                            <span th:if="${meal.exampleFoods != null and !meal.exampleFoods.isEmpty()}"
+                                  th:text="${#strings.listJoin(meal.exampleFoods, ', ')}">Example Foods</span>
+                        </li>
+                    </ul>
+                    <p th:if="${sampleMeals == null or sampleMeals.isEmpty()}" class="no-data">No specific meal examples provided in this plan.</p>
+                    <a th:href="@{/diet/my-plan}" class="btn-link">View Full Diet Plan</a>
+                    <a th:href="@{/diet/tracker}" class="btn-link btn-link-secondary">Track Today's Meals</a>
+                </div>
+                <div th:if="${currentDietPlan == null}" class="no-data">
+                    <p>No diet plan assigned yet. Please complete your <a th:href="@{/diet/profile}">Diet Profile</a>.</p>
+                </div>
+            </div>
+
+            <!-- Quick Navigation / User Info -->
+            <div class="card">
+                <h3>Quick Links & Info</h3>
+                <p><strong>Username:</strong> <span sec:authentication="principal.username">User</span></p>
+                <p th:if="${currentUser != null}"><strong>Email:</strong> <span th:text="${currentUser.email}">user@example.com</span></p>
+                <ul>
+                    <li><a th:href="@{/workout/profile}">Manage Workout Profile</a></li>
+                    <li><a th:href="@{/diet/profile}">Manage Diet Profile</a></li>
+                    <li><a th:href="@{/history/plans}">View Plan History</a></li>
+                    <li><a th:href="@{/analytics}">View Progress Analytics</a></li>
+                    <!-- Add more links as features are built -->
+                </ul>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <a th:href="@{/workout/tracker}" class="btn-action">Log Workout</a>
+            <a th:href="@{/diet/tracker}" class="btn-action">Log Meal</a>
+        </div>
+
+        <!-- Chatbot Section -->
+        <div class="card" id="chatbot-section">
+            <h3>Fitness Chatbot Assistant</h3>
+            <div id="chat-output" style="height: 200px; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin-bottom: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                <p><strong>Chatbot:</strong> Hello! How can I assist you with your fitness plan today?</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="chat-input" placeholder="Ask something..." style="flex-grow: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <button id="chat-send-btn" class="btn-link" style="background-color: #007bff; color:white; border:none; padding: 8px 15px;">Send</button>
+            </div>
+            <small style="display:block; margin-top:10px; font-size:0.85em; color:#777;">
+                Try: "What's my next workout?", "How was my diet last week?", "What was my calorie intake yesterday?", "What was my last workout?"
+            </small>
+        </div>
+
+    </div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+    const chatOutput = document.getElementById('chat-output');
+    const chatInput = document.getElementById('chat-input');
+    const chatSendBtn = document.getElementById('chat-send-btn');
+
+    function addMessageToChat(sender, message) {
+        const p = document.createElement('p');
+        p.innerHTML = `<strong>${sender}:</strong> ${message}`;
+        chatOutput.appendChild(p);
+        chatOutput.scrollTop = chatOutput.scrollHeight; // Auto-scroll to bottom
+    }
+
+    async function sendQuery() {
+        const query = chatInput.value.trim();
+        if (!query) return;
+
+        addMessageToChat('You', query);
+        chatInput.value = ''; // Clear input
+
+        try {
+            // Get CSRF token if Spring Security CSRF protection is enabled for POST
+            const csrfToken = document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').getAttribute('content') : null;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]') ? document.querySelector('meta[name="_csrf_header"]').getAttribute('content') : null;
+
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (csrfToken && csrfHeader) {
+                headers[csrfHeader] = csrfToken;
+            }
+
+            const response = await fetch(/*[[@{/api/chatbot/query}]]*/ '/api/chatbot/query', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ query: query })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                addMessageToChat('Chatbot', `Error: ${errorData.error || 'Could not process request.'}`);
+                return;
+            }
+
+            const data = await response.json();
+            addMessageToChat('Chatbot', data.reply);
+
+        } catch (error) {
+            console.error('Chatbot error:', error);
+            addMessageToChat('Chatbot', 'Sorry, I encountered an error. Please try again.');
+        }
+    }
+
+    chatSendBtn.addEventListener('click', sendQuery);
+    chatInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            sendQuery();
+        }
+    });
+
+/*]]>*/
+</script>
+</body>
+</html>

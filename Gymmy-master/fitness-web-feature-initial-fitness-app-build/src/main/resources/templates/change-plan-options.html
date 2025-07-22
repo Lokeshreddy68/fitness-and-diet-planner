@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Change ' + ${#strings.capitalize(planType)} + ' Plan - Fitness Planner'">Change Plan</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; color: #333; }
+        .navbar { background-color: #333; overflow: hidden; padding: 10px 20px; }
+        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .navbar .right-links { float: right; }
+        .navbar .active { background-color: #5cb85c; }
+
+        .container { max-width: 800px; margin: 20px auto; background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        h2 { text-align: center; color: #333; margin-bottom: 25px; }
+        .current-plan-info { background-color: #f1f1f1; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .current-plan-info p { margin: 5px 0; }
+        .plan-list { list-style: none; padding: 0; }
+        .plan-item { border: 1px solid #ddd; border-radius: 5px; margin-bottom: 15px; padding: 15px; }
+        .plan-item h3 { margin-top: 0; color: #5cb85c; }
+        .plan-item p { font-size: 0.9em; line-height: 1.5; margin-bottom: 10px; }
+        .plan-item .btn-select { background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .plan-item .btn-select:hover { background-color: #0056b3; }
+        .plan-item .btn-select.disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .no-plans { text-align: center; color: #777; }
+        .text-center { text-align: center; margin-top: 20px;}
+        .text-center a { color: #007bff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a th:href="@{/}">Fitness Planner</a>
+        <div class="right-links" sec:authorize="isAuthenticated()">
+            <a th:href="@{/dashboard}">Dashboard</a>
+            <!-- Add other relevant links -->
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 th:text="'Select a New ' + ${#strings.capitalize(planType)} + ' Plan'">Select New Plan</h2>
+
+        <div th:if="${currentPlan != null}" class="current-plan-info">
+            <h4>Your Current Plan:</h4>
+            <p><strong th:text="${currentPlan.planName}">Current Plan Name</strong></p>
+            <p th:if="${currentPlan.description}" th:text="${currentPlan.description}">Current Plan Description</p>
+        </div>
+        <div th:if="${currentPlan == null}" class="current-plan-info">
+             <p>You do not have an active <span th:text="${planType}"></span> plan.</p>
+        </div>
+
+
+        <div th:if="${availablePlans == null or availablePlans.isEmpty()}" class="no-plans">
+            <p>No other <span th:text="${planType}"></span> plans available at the moment.</p>
+        </div>
+
+        <ul th:unless="${availablePlans == null or availablePlans.isEmpty()}" class="plan-list">
+            <li th:each="plan : ${availablePlans}" class="plan-item">
+                <h3 th:text="${plan.planName}">Plan Name</h3>
+                <p th:text="${plan.description}">Plan Description</p>
+                <p>
+                    <strong th:if="${plan.targetGoal}">Goal:</strong> <span th:text="${#strings.capitalizeWords(plan.targetGoal.replace('_', ' '))}"></span>
+                    <span th:if="${plan.targetDietType}">&nbsp;|&nbsp;<strong>Type:</strong> <span th:text="${#strings.capitalizeWords(plan.targetDietType.replace('_', ' '))}"></span></span>
+                </p>
+                <form th:action="@{'/manage-plans/' + ${planType} + '/change'}" method="post" style="display: inline;">
+                    <input type="hidden" name="selectedPlanId" th:value="${plan.planId}" />
+                    <button type="submit" class="btn-select"
+                            th:disabled="${currentPlan != null and currentPlan.planId == plan.planId}"
+                            th:text="${currentPlan != null and currentPlan.planId == plan.planId} ? 'Currently Selected' : 'Select This Plan'">
+                        Select This Plan
+                    </button>
+                </form>
+            </li>
+        </ul>
+
+        <div class="text-center">
+            <a th:href="@{(${planType == 'workout'} ? '/workout/my-plan' : '/diet/my-plan')}">Back to My Plan</a> |
+            <a th:href="@{/dashboard}">Back to Dashboard</a>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Workout - Fitness Planner</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; color: #333; }
+        .navbar { background-color: #333; overflow: hidden; padding: 10px 20px; }
+        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .navbar .right-links { float: right; }
+        .navbar .active { background-color: #5cb85c; }
+
+        .container { max-width: 900px; margin: 20px auto; background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        h2 { text-align: center; color: #333; margin-bottom: 10px; }
+        h3 { text-align: center; color: #5cb85c; margin-bottom: 20px; font-weight: normal; }
+        .form-group { margin-bottom: 12px; display: flex; flex-wrap: wrap; align-items: center; gap:10px; padding-bottom: 10px; border-bottom: 1px solid #efefef;}
+        .form-group:last-of-type{ border-bottom:none; }
+        .form-group label { display: block; margin-bottom: 5px; color: #555; font-size:0.9em; flex-basis: 100%;}
+        .form-group input[type="text"], .form-group input[type="number"], .form-group input[type="date"], .form-group input[type="time"], .form-group select, .form-group textarea {
+            padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size:0.95em;
+        }
+        .form-group .exercise-name { flex-grow:2; min-width: 200px;}
+        .form-group .short-input { width: 70px; } /* For sets, reps, duration */
+        .form-group .medium-input { width: 100px; } /* For weight */
+        .form-group textarea { width: 100%; min-height: 40px; }
+
+
+        .btn-submit { background-color: #5cb85c; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; display: block; width: fit-content; margin: 20px auto 0 auto; }
+        .btn-submit:hover { background-color: #4cae4c; }
+        .btn-add-exercise { background-color: #007bff; color:white; padding: 8px 12px; border:none; border-radius:4px; cursor:pointer; font-size:0.9em; margin-top:10px; margin-bottom:20px;}
+        .btn-add-exercise:hover{ background-color:#0056b3; }
+
+        .log-entry { padding: 15px; border: 1px solid #e0e0e0; border-radius: 5px; margin-bottom: 15px; background-color: #fdfdfd; }
+        .log-entry h4 { margin-top:0; margin-bottom:10px; color:#444; font-size: 1.1em; }
+
+        .alert { padding: 12px; margin-bottom: 18px; border-radius: 4px; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .text-center { text-align: center; margin-top: 15px;}
+        .text-center a { color: #007bff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a th:href="@{/}">Fitness Planner</a>
+        <div class="right-links" sec:authorize="isAuthenticated()">
+            <a th:href="@{/dashboard}">Dashboard</a>
+            <a th:href="@{/workout/tracker}" class="active">Track Workout</a>
+            <a th:href="@{/diet/tracker}">Track Diet</a>
+            <a th:href="@{/workout/history}">Workout History</a>
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Log Your Workout</h2>
+        <h3 th:if="${todaysPlannedWorkoutName}" th:text="'Today\'s Plan: ' + ${todaysPlannedWorkoutName}">Planned workout name</h3>
+        <h3 th:unless="${todaysPlannedWorkoutName}">Log Ad-hoc Workout</h3>
+
+
+        <form th:action="@{/workout/tracker}" th:object="${workoutLogForm}" method="post">
+            <div id="logEntriesContainer">
+                <th:block th:each="entry, iterStat : *{logEntries}">
+                    <div class="log-entry">
+                        <input type="hidden" th:field="*{logEntries[__${iterStat.index}__].workoutPlanId}" />
+                        <input type="hidden" th:field="*{logEntries[__${iterStat.index}__].dailyWorkoutDayName}" />
+
+                        <div class="form-group">
+                             <label th:for="${'exerciseName' + iterStat.index}">Exercise <span th:text="${iterStat.count}"></span>:</label>
+                             <input type="text" th:id="${'exerciseName' + iterStat.index}" th:field="*{logEntries[__${iterStat.index}__].exerciseName}" placeholder="Exercise Name" class="exercise-name" required />
+                        </div>
+                        <div class="form-group">
+                            <label th:for="${'workoutDate' + iterStat.index}" style="flex-basis:auto; margin-right:5px;">Date:</label>
+                            <input type="date" th:id="${'workoutDate' + iterStat.index}" th:field="*{logEntries[__${iterStat.index}__].workoutDate}" required />
+                             <label th:for="${'workoutTime' + iterStat.index}" style="flex-basis:auto; margin-right:5px; margin-left:10px;">Time (Optional):</label>
+                            <input type="time" th:id="${'workoutTime' + iterStat.index}" th:field="*{logEntries[__${iterStat.index}__].workoutTime}"/>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" th:field="*{logEntries[__${iterStat.index}__].setsPerformed}" placeholder="Sets" class="short-input" />
+                            <input type="text" th:field="*{logEntries[__${iterStat.index}__].repsPerformed}" placeholder="Reps (e.g. 10,9,8)" class="medium-input" />
+                            <input type="number" step="0.1" th:field="*{logEntries[__${iterStat.index}__].weightUsed}" placeholder="Weight" class="medium-input" />
+                            <select th:field="*{logEntries[__${iterStat.index}__].weightUnit}" class="medium-input">
+                                <option th:each="unit : ${weightUnits}" th:value="${unit}" th:text="${unit}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                             <input type="number" th:field="*{logEntries[__${iterStat.index}__].durationPerformedSeconds}" placeholder="Duration (sec)" class="medium-input" />
+                             <input type="number" th:field="*{logEntries[__${iterStat.index}__].restTimeSeconds}" placeholder="Rest (sec)" class="medium-input" />
+                        </div>
+                        <div class="form-group">
+                            <textarea th:field="*{logEntries[__${iterStat.index}__].notes}" placeholder="Notes (e.g., how you felt, PRs)"></textarea>
+                        </div>
+                    </div>
+                </th:block>
+            </div>
+
+            <button type="button" id="addExerciseBtn" class="btn-add-exercise">Add Another Exercise</button>
+            <button type="submit" class="btn-submit">Save Workout Log</button>
+        </form>
+
+        <div class="text-center">
+            <a th:href="@{/dashboard}">Back to Dashboard</a> |
+            <a th:href="@{/workout/history}">View Workout History</a>
+        </div>
+    </div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.getElementById('addExerciseBtn').addEventListener('click', function() {
+        const container = document.getElementById('logEntriesContainer');
+        const entryCount = container.getElementsByClassName('log-entry').length;
+        const newEntry = document.createElement('div');
+        newEntry.classList.add('log-entry');
+
+        // Basic structure for a new entry - this should mirror the ThymeLeaf structure for binding
+        // This is a simplified version. For complex forms, consider using JavaScript templating libraries
+        // or making an AJAX call to get a rendered fragment from the server.
+        newEntry.innerHTML = `
+            <h4>New Exercise</h4> <!-- You might want a counter here -->
+            <input type="hidden" name="logEntries[${entryCount}].workoutPlanId" value="" />
+            <input type="hidden" name="logEntries[${entryCount}].dailyWorkoutDayName" value="" />
+            <div class="form-group">
+                <label for="exerciseName${entryCount}">Exercise:</label>
+                <input type="text" id="exerciseName${entryCount}" name="logEntries[${entryCount}].exerciseName" placeholder="Exercise Name" class="exercise-name" required />
+            </div>
+            <div class="form-group">
+                <label for="workoutDate${entryCount}" style="flex-basis:auto; margin-right:5px;">Date:</label>
+                <input type="date" id="workoutDate${entryCount}" name="logEntries[${entryCount}].workoutDate" value="${/*[[${today}]]*/ ''}" required />
+                <label for="workoutTime${entryCount}" style="flex-basis:auto; margin-right:5px; margin-left:10px;">Time (Optional):</label>
+                <input type="time" id="workoutTime${entryCount}" name="logEntries[${entryCount}].workoutTime}" />
+            </div>
+            <div class="form-group">
+                <input type="number" name="logEntries[${entryCount}].setsPerformed" placeholder="Sets" class="short-input" />
+                <input type="text" name="logEntries[${entryCount}].repsPerformed" placeholder="Reps (e.g. 10,9,8)" class="medium-input" />
+                <input type="number" step="0.1" name="logEntries[${entryCount}].weightUsed" placeholder="Weight" class="medium-input" />
+                <select name="logEntries[${entryCount}].weightUnit" class="medium-input">
+                    <option value="kg">kg</option>
+                    <option value="lbs">lbs</option>
+                    <option value="bodyweight">bodyweight</option>
+                </select>
+            </div>
+            <div class="form-group">
+                 <input type="number" name="logEntries[${entryCount}].durationPerformedSeconds" placeholder="Duration (sec)" class="medium-input" />
+                 <input type="number" name="logEntries[${entryCount}].restTimeSeconds" placeholder="Rest (sec)" class="medium-input" />
+            </div>
+            <div class="form-group">
+                <textarea name="logEntries[${entryCount}].notes" placeholder="Notes"></textarea>
+            </div>
+        `;
+        // TODO: Add a remove button for each entry
+        container.appendChild(newEntry);
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Fitness Planner</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; min-height: 90vh; }
+        .container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #555; }
+        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="password"] { width: calc(100% - 20px); padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn { background-color: #5cb85c; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+        .btn:hover { background-color: #4cae4c; }
+        .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .error-message { color: #dc3545; font-size: 0.9em; margin-top: 3px; }
+        .text-center { text-align: center; margin-top: 15px;}
+        .text-center a { color: #007bff; text-decoration: none; }
+        .text-center a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Create Account</h2>
+
+        <!-- Registration Error Message -->
+        <div th:if="${registrationError}" class="alert alert-danger" th:text="${registrationError}"></div>
+
+        <form th:action="@{/register}" th:object="${userDto}" method="post">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" th:field="*{username}" />
+                <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" th:field="*{email}" />
+                <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" th:field="*{password}" />
+                <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" id="confirmPassword" th:field="*{confirmPassword}" />
+                <div th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn">Register</button>
+            </div>
+        </form>
+        <div class="text-center">
+            <p>Already have an account? <a th:href="@{/login}">Login here</a></p>
+        </div>
+         <div class="text-center">
+             <p><a th:href="@{/}">Back to Home</a></p>
+        </div>
+    </div>
+</body>
+</html>

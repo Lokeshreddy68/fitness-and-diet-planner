@@ -1,0 +1,123 @@
+[
+  {
+    "planId": "WL_BEGINNER_001",
+    "planName": "Beginner Weight Loss - Phase 1",
+    "targetGoal": "weight_loss",
+    "targetActivityLevel": ["sedentary", "lightly_active"],
+    "description": "A 4-week introductory plan focusing on full-body workouts and cardio to kickstart weight loss.",
+    "durationWeeks": 4,
+    "weeklySchedule": [
+      {
+        "day": "Monday",
+        "workoutType": "Full Body Strength",
+        "exercises": [
+          {"name": "Squats", "sets": 3, "reps": "8-12", "restSeconds": 60},
+          {"name": "Push-ups (on knees if needed)", "sets": 3, "reps": "As many as possible (AMRAP)", "restSeconds": 60},
+          {"name": "Plank", "sets": 3, "durationSeconds": 30, "restSeconds": 45},
+          {"name": "Lunges (each leg)", "sets": 3, "reps": "8-10", "restSeconds": 60}
+        ]
+      },
+      {
+        "day": "Tuesday",
+        "workoutType": "Cardio",
+        "description": "Moderate intensity cardio.",
+        "exercises": [
+          {"name": "Brisk Walking or Light Jogging", "durationMinutes": 30}
+        ]
+      },
+      {
+        "day": "Wednesday",
+        "workoutType": "Rest or Active Recovery",
+        "description": "Light stretching or a short walk."
+      },
+      {
+        "day": "Thursday",
+        "workoutType": "Full Body Strength",
+        "exercises": [
+          {"name": "Glute Bridges", "sets": 3, "reps": "12-15", "restSeconds": 60},
+          {"name": "Dumbbell Rows (if available, else bodyweight rows)", "sets": 3, "reps": "8-12", "restSeconds": 60},
+          {"name": "Leg Raises", "sets": 3, "reps": "10-15", "restSeconds": 45},
+          {"name": "Bird-dog (each side)", "sets": 3, "reps": "10-12", "restSeconds": 60}
+        ]
+      },
+      {
+        "day": "Friday",
+        "workoutType": "Cardio",
+        "description": "Moderate intensity cardio.",
+        "exercises": [
+          {"name": "Cycling or Elliptical", "durationMinutes": 30}
+        ]
+      },
+      {
+        "day": "Saturday",
+        "workoutType": "Optional Light Activity or Rest"
+      },
+      {
+        "day": "Sunday",
+        "workoutType": "Rest"
+      }
+    ]
+  },
+  {
+    "planId": "MG_INTERMEDIATE_001",
+    "planName": "Intermediate Muscle Gain - Phase 1",
+    "targetGoal": "muscle_gain",
+    "targetActivityLevel": ["moderately_active", "very_active"],
+    "description": "A 6-week plan focusing on progressive overload for muscle hypertrophy.",
+    "durationWeeks": 6,
+    "weeklySchedule": [
+      {
+        "day": "Monday",
+        "workoutType": "Upper Body A",
+        "exercises": [
+          {"name": "Bench Press", "sets": 4, "reps": "6-10", "restSeconds": 90},
+          {"name": "Overhead Press", "sets": 3, "reps": "8-12", "restSeconds": 75},
+          {"name": "Pull-ups (or Lat Pulldowns)", "sets": 3, "reps": "AMRAP or 8-12", "restSeconds": 75},
+          {"name": "Dumbbell Bicep Curls", "sets": 3, "reps": "10-15", "restSeconds": 60}
+        ]
+      },
+      {
+        "day": "Tuesday",
+        "workoutType": "Lower Body A",
+        "exercises": [
+          {"name": "Barbell Squats", "sets": 4, "reps": "6-10", "restSeconds": 90},
+          {"name": "Romanian Deadlifts", "sets": 3, "reps": "8-12", "restSeconds": 75},
+          {"name": "Leg Press", "sets": 3, "reps": "10-15", "restSeconds": 75},
+          {"name": "Calf Raises", "sets": 4, "reps": "15-20", "restSeconds": 45}
+        ]
+      },
+      {
+        "day": "Wednesday",
+        "workoutType": "Rest or Active Recovery"
+      },
+      {
+        "day": "Thursday",
+        "workoutType": "Upper Body B",
+        "exercises": [
+          {"name": "Incline Dumbbell Press", "sets": 3, "reps": "8-12", "restSeconds": 75},
+          {"name": "Barbell Rows", "sets": 4, "reps": "6-10", "restSeconds": 90},
+          {"name": "Lateral Raises", "sets": 3, "reps": "12-15", "restSeconds": 60},
+          {"name": "Tricep Pushdowns", "sets": 3, "reps": "10-15", "restSeconds": 60}
+        ]
+      },
+      {
+        "day": "Friday",
+        "workoutType": "Lower Body B",
+        "exercises": [
+          {"name": "Deadlifts (Conventional or Sumo)", "sets": 1, "reps": "5", "restSeconds": 180},
+          {"name": "Front Squats", "sets": 3, "reps": "8-12", "restSeconds": 90},
+          {"name": "Hamstring Curls", "sets": 3, "reps": "10-15", "restSeconds": 60},
+          {"name": "Glute Kickbacks", "sets": 3, "reps": "15-20", "restSeconds": 45}
+        ]
+      },
+      {
+        "day": "Saturday",
+        "workoutType": "Optional: Cardio or Skill Work"
+      },
+      {
+        "day": "Sunday",
+        "workoutType": "Rest"
+      }
+    ]
+  }
+]
